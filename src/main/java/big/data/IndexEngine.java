@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 
 
-public class SearchEngine extends Configured implements Tool {
+public class IndexEngine extends Configured implements Tool {
 
     public static class MyMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
         private static final IntWritable ONE = new IntWritable(1);
@@ -79,3 +79,4 @@ public class SearchEngine extends Configured implements Tool {
         System.exit(returnCode);
     }
 }
+
