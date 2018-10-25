@@ -1,4 +1,4 @@
-package me.soulmachine;
+package big.data;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 
 
-public class WordCount extends Configured implements Tool {
+public class SearchEngine extends Configured implements Tool {
 
   public static class MyMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
     private static final IntWritable ONE = new IntWritable(1);
@@ -55,7 +55,7 @@ public class WordCount extends Configured implements Tool {
   @Override public int run(final String[] args) throws Exception {
     final Configuration conf = this.getConf();
     final Job job = Job.getInstance(conf, "Word Count");
-    job.setJarByClass(WordCount.class);
+    job.setJarByClass(SearchEngine.class);
 
     job.setMapperClass(MyMapper.class);
     job.setReducerClass(MyReducer.class);
@@ -73,7 +73,7 @@ public class WordCount extends Configured implements Tool {
   }
 
   public static void main(final String[] args) throws Exception {
-    final int returnCode = ToolRunner.run(new Configuration(), new WordCount(), args);
+    final int returnCode = ToolRunner.run(new Configuration(), new SearchEngine(), args);
     System.exit(returnCode);
   }
 }
