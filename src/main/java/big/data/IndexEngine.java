@@ -15,15 +15,18 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import org.json.*;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 
 public class IndexEngine extends Configured implements Tool {
 
-    public static class MyMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
+    public static class MapperIDF extends Mapper<LongWritable, Text, Text, IntWritable> {
         private static final IntWritable ONE = new IntWritable(1);
         private final transient Text word = new Text();
 
@@ -32,17 +35,30 @@ public class IndexEngine extends Configured implements Tool {
          */
         @Override
         public void map(final LongWritable key, final Text value, final Context context) throws IOException, InterruptedException {
-            final String line = value.toString();
-            final StringTokenizer tokenizer = new StringTokenizer(line);
-            while (tokenizer.hasMoreTokens()) {
-                word.set(tokenizer.nextToken());
-                context.write(word, ONE);
+//            final String line = value.toString();
+//            final StringTokenizer tokenizer = new StringTokenizer(line);
+//            while (tokenizer.hasMoreTokens()) {
+//                word.set(tokenizer.nextToken());
+//                context.write(word, ONE);
+//            }
+
+            String line = value.toString();
+            String[] tuple = line.split("\\n");
+            try {
+                for (String str : tuple) {
+                    JSONObject obj = new JSONObject(str);
+                    final StringTokenizer tokenizer = new StringTokenizer(obj.getString("text"));
+                    Map<Integer, Integer> idf = new HashMap();
+                    //TODO:logic
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
         }
     }
 
 
-    public static class MyReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+    public static class ReducerIDF extends Reducer<Text, IntWritable, Text, IntWritable> {
 
         @Override
         public void reduce(final Text key, final Iterable<IntWritable> values, final Context context)
@@ -59,15 +75,15 @@ public class IndexEngine extends Configured implements Tool {
     @Override
     public int run(final String[] args) throws Exception {
         final Configuration conf = this.getConf();
-        final Job job = Job.getInstance(conf, "Word Count");
+        final Job job = Job.getInstance(conf, "idf_counter");
         job.setJarByClass(IndexEngine.class);
 
-        job.setMapperClass(MyMapper.class);
-        job.setReducerClass(MyReducer.class);
-
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
-
+        job.setMapperClass(MapperIDF.class);
+        job.setReducerClass(ReducerIDF.class);
+        job.setMapOutputKeyClass(IntWritable.class);
+        job.setMapOutputValueClass(Text.class);
+        job.setOutputKeyClass(IntWritable.class);
+        job.setOutputValueClass(Text.class);
         job.setInputFormatClass(TextInputFormat.class);
         job.setOutputFormatClass(TextOutputFormat.class);
 
@@ -78,6 +94,12 @@ public class IndexEngine extends Configured implements Tool {
     }
 
     public static void main(final String[] args) throws Exception {
+        if (args.length != 2) {
+            System.err.println("Usage: <command> <in> <out>");
+            System.exit(1);
+        }
+
+
         final int returnCode = ToolRunner.run(new Configuration(), new IndexEngine(), args);
         System.exit(returnCode);
     }
