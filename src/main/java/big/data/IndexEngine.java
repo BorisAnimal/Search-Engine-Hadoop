@@ -62,6 +62,7 @@ public class IndexEngine extends Configured implements Tool {
                         WORD_HASH.set(itr.nextToken().hashCode());
                     }
                     for (int i : hashes) {
+                        WORD_HASH.set(i);
                         context.write(WORD_HASH, ONE);
                     }
                 }
@@ -72,10 +73,10 @@ public class IndexEngine extends Configured implements Tool {
     }
 
 
-    public static class ReducerIDF extends Reducer<Text, IntWritable, Text, IntWritable> {
+    public static class ReducerIDF extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {
 
         @Override
-        public void reduce(final Text key, final Iterable<IntWritable> values, final Context context)
+        public void reduce(final IntWritable key, final Iterable<IntWritable> values, final Context context)
                 throws IOException, InterruptedException {
             int sum = 0;
             for (final IntWritable val : values) {
@@ -112,7 +113,6 @@ public class IndexEngine extends Configured implements Tool {
             System.err.println("Usage: <command> <in> <out>");
             System.exit(1);
         }
-
 
         final int returnCode = ToolRunner.run(new Configuration(), new IndexEngine(), args);
         System.exit(returnCode);
