@@ -1,5 +1,8 @@
 ## Big-Data-Fall-2018
 
+## Suggestions/assumptions:
+* all functions use String.hashCode() function to get word_id 
+
 ## File SearchEngine.java 
 Introduce search part of the project (now it is do not it's functional)
 

@@ -6,6 +6,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -19,19 +20,20 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 
 public class IndexEngine extends Configured implements Tool {
 
-    public static class MapperIDF extends Mapper<LongWritable, Text, Text, IntWritable> {
+    public static class MapperIDF extends Mapper<LongWritable, Text, IntWritable, IntWritable> {
         private static final IntWritable ONE = new IntWritable(1);
-        private final transient Text word = new Text();
+        private final transient IntWritable WORD_HASH = new IntWritable();
+
+        private boolean caseSensitive = false;
+        private Set<String> patternsToSkip = new HashSet<String>(); //TODO
 
         /**
-         * Enumerate words
+         * Counts IDF for words
          */
         @Override
         public void map(final LongWritable key, final Text value, final Context context) throws IOException, InterruptedException {
@@ -42,14 +44,26 @@ public class IndexEngine extends Configured implements Tool {
 //                context.write(word, ONE);
 //            }
 
-            String line = value.toString();
+            // Preprocessing
+            String line = (caseSensitive) ? value.toString() : value.toString().toLowerCase();
+//            for (String pattern : patternsToSkip) {
+//                line = line.replaceAll(pattern, "");
+//            }
+
             String[] tuple = line.split("\\n");
             try {
+                // For each document (JSON)
                 for (String str : tuple) {
                     JSONObject obj = new JSONObject(str);
-                    final StringTokenizer tokenizer = new StringTokenizer(obj.getString("text"));
-                    Map<Integer, Integer> idf = new HashMap();
-                    //TODO:logic
+
+                    HashSet<Integer> hashes = new HashSet<Integer>();
+                    final StringTokenizer itr = new StringTokenizer(obj.getString("text"));
+                    while (itr.hasMoreTokens()) {
+                        WORD_HASH.set(itr.nextToken().hashCode());
+                    }
+                    for (int i : hashes) {
+                        context.write(WORD_HASH, ONE);
+                    }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
