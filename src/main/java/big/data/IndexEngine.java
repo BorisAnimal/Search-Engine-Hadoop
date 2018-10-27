@@ -63,6 +63,7 @@ public class IndexEngine extends Configured implements Tool {
                         WORD_HASH.set(itr.nextToken().hashCode());
                     }
                     for (int i : hashes) {
+                        System.out.println(i + "");
                         WORD_HASH.set(i);
                         context.write(WORD_HASH, ONE);
                     }
