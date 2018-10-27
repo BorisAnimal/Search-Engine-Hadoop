@@ -16,6 +16,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import org.json.*;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
@@ -26,9 +27,11 @@ public class IndexEngine extends Configured implements Tool {
         private static final IntWritable ONE = new IntWritable(1);
         private final transient Text word = new Text();
 
+        /**
+         * Enumerate words
+         */
         @Override
-        public void map(final LongWritable key, final Text value, final Context context)
-                throws IOException, InterruptedException {
+        public void map(final LongWritable key, final Text value, final Context context) throws IOException, InterruptedException {
             final String line = value.toString();
             final StringTokenizer tokenizer = new StringTokenizer(line);
             while (tokenizer.hasMoreTokens()) {
@@ -57,7 +60,7 @@ public class IndexEngine extends Configured implements Tool {
     public int run(final String[] args) throws Exception {
         final Configuration conf = this.getConf();
         final Job job = Job.getInstance(conf, "Word Count");
-        job.setJarByClass(SearchEngine.class);
+        job.setJarByClass(IndexEngine.class);
 
         job.setMapperClass(MyMapper.class);
         job.setReducerClass(MyReducer.class);
@@ -75,7 +78,7 @@ public class IndexEngine extends Configured implements Tool {
     }
 
     public static void main(final String[] args) throws Exception {
-        final int returnCode = ToolRunner.run(new Configuration(), new SearchEngine(), args);
+        final int returnCode = ToolRunner.run(new Configuration(), new IndexEngine(), args);
         System.exit(returnCode);
     }
 }
