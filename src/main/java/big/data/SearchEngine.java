@@ -5,17 +5,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -24,6 +21,7 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.Counter;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MapFileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.StringUtils;
 import org.json.JSONException;
@@ -95,19 +93,23 @@ public class SearchEngine {
         }
     }
 
-    public static class IntSumReducer
-            extends Reducer<Text, IntWritable, Text, IntWritable> {
-        private IntWritable result = new IntWritable();
+    public static class IntSumReducer extends Reducer<IntWritable, IntWritable, IntWritable, MapWritable> {
+        private final IntWritable ONE = new IntWritable(1);
 
-        public void reduce(Text key, Iterable<IntWritable> values,
-                           Context context
-        ) throws IOException, InterruptedException {
-            int sum = 0;
+        public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
+            MapWritable counter = new MapWritable();
+//            System.out.println("key: " + key.toString());
             for (IntWritable val : values) {
-                sum += val.get();
+                System.out.println("value: " + val.toString());
+                if (counter.containsKey(val)) {
+                    counter.put(new IntWritable(val.get()), new IntWritable(((IntWritable) counter.get(val)).get() + 1));
+                } else {
+                    counter.put(new IntWritable(val.get()), ONE);
+                }
             }
-            result.set(sum);
-            context.write(key, result);
+//            System.out.println(Arrays.toString(counter.entrySet().toArray()));
+//            System.out.println("kek: " + counter.get(new IntWritable(-782211141)));
+            context.write(key, counter);
         }
     }
 
@@ -128,11 +130,11 @@ public class SearchEngine {
 //        job.setOutputValueClass(IntWritable.class);
 
         job.setMapOutputKeyClass(IntWritable.class);
-        job.setMapOutputValueClass(Text.class);
+        job.setMapOutputValueClass(IntWritable.class);
         job.setOutputKeyClass(IntWritable.class);
-        job.setOutputValueClass(Text.class);
+        job.setOutputValueClass(MapWritable.class);
         job.setInputFormatClass(TextInputFormat.class);
-        job.setOutputFormatClass(TextOutputFormat.class);
+        job.setOutputFormatClass(MapFileOutputFormat.class);
 
         List<String> otherArgs = new ArrayList<String>();
         for (int i = 0; i < remainingArgs.length; ++i) {
