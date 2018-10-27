@@ -23,7 +23,7 @@ import java.util.StringTokenizer;
 public class IndexEngine extends Configured implements Tool {
 
     public static class MyMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
-        private static final IntWritable ONE = new IntWritable(1);
+        private static final IntWritable one = new IntWritable(1);
         private final transient Text word = new Text();
 
         @Override
@@ -33,7 +33,7 @@ public class IndexEngine extends Configured implements Tool {
             final StringTokenizer tokenizer = new StringTokenizer(line);
             while (tokenizer.hasMoreTokens()) {
                 word.set(tokenizer.nextToken());
-                context.write(word, ONE);
+                context.write(word, one);
             }
         }
     }
@@ -75,8 +75,8 @@ public class IndexEngine extends Configured implements Tool {
     }
 
     public static void main(final String[] args) throws Exception {
-        final int returnCode = ToolRunner.run(new Configuration(), new SearchEngine(), args);
-        System.exit(returnCode);
+        //final int returnCode = ToolRunner.run(new Configuration(), new SearchEngine(), args);
+        //System.exit(returnCode);
     }
 }
 
