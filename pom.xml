@@ -29,7 +29,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>big.data.SearchEngine</mainClass>
+              <mainClass>SearchEngine</mainClass>
             </manifest>
           </archive>
         </configuration>
