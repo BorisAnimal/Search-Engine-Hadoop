@@ -1,5 +1,6 @@
 package big.data;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -16,6 +17,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
@@ -69,6 +71,11 @@ public class SearchEngine extends Configured implements Tool {
         job.setOutputFormatClass(TextOutputFormat.class);
 
         FileInputFormat.addInputPath(job, new Path(args[0]));
+        File tmpDir = new File(args[1]);
+        boolean exists = tmpDir.exists();
+        if (exists) {
+            FileUtils.deleteDirectory(tmpDir);
+        }
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
         return job.waitForCompletion(true) ? 0 : 1;
