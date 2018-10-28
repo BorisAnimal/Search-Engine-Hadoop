@@ -1,4 +1,4 @@
-package big.data;
+package big.data.searcher;
 
 import java.io.BufferedReader;
 import java.io.File;

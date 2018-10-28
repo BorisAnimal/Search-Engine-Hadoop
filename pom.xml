@@ -37,7 +37,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>big.data.SearchEngine</mainClass>
+              <mainClass>big.data.searcher.SearchEngine</mainClass>
             </manifest>
           </archive>
         </configuration>
