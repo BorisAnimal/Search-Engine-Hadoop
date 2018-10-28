@@ -39,11 +39,12 @@ public class IndexEngine {
 
     private final static String TF_PATH = "output_tf";
     private final static String IDF_PATH = "output_idf";
-    private final static String TMP_PATH = "output_tmp";
+    private final static String TMP_PATH1 = "output_tmp";
+    private final static String TMP_PATH2 = "output_kek";
 
 
     public static void main(String[] args) throws Exception {
-        Configuration conf = new Configuration();
+        Configuration conf = new Configuration(false);
         GenericOptionsParser optionParser = new GenericOptionsParser(conf, args);
 
         Job jobTF = JobTF.getJob(conf);
@@ -61,12 +62,21 @@ public class IndexEngine {
             Job jobIDF = JobIDF.getJob(conf);
             // tmp tf path
             FileInputFormat.addInputPath(jobIDF, new Path(TF_PATH));
-            deleteDir(IDF_PATH);
             // tmp idf path
-            FileOutputFormat.setOutputPath(jobIDF, new Path(IDF_PATH));
+            deleteDir(TMP_PATH1);
+            FileOutputFormat.setOutputPath(jobIDF, new Path(TMP_PATH1));
             // run
             resCode = (jobIDF.waitForCompletion(true) ? 0 : 1);
             System.out.println("IDF result: " + resCode);
+
+            Job jobIDFFin = JobIDF.getFinJob(conf);
+            FileInputFormat.addInputPath(jobIDFFin, new Path(TMP_PATH1));
+            deleteDir(IDF_PATH);
+            FileOutputFormat.setOutputPath(jobIDFFin, new Path(IDF_PATH));
+            // run
+            resCode = (jobIDFFin.waitForCompletion(true) ? 0 : 1);
+            System.out.println("IDF fin result: " + resCode);
+//            deleteDir(TMP_PATH);
 
             if (resCode == 0) {
                 Job jobTFIDF = JobTFIDF.getJob(conf, IDF_PATH);
