@@ -1,7 +1,6 @@
 package big.data.indexer;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hdfs.DFSClient;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -23,8 +22,7 @@ public class JobIDF {
             }
             String tmp = key.toString() + "_" + sum;
             context.write(new Text(tmp), ONE);
-            tmp = " ";
-            System.out.print(tmp);
+            System.out.print(" ");
         }
     }
 
@@ -64,27 +62,27 @@ public class JobIDF {
     }
 
     //
-    public static class MapperIDFFin extends Mapper<Text, IntWritable, NullWritable, NullWritable> {
+    public static class MapperIDFFin extends Mapper<Text, IntWritable, IntWritable, IntWritable> {
         @Override
         public void map(Text key, IntWritable value, Context context) throws IOException, InterruptedException {
-            System.out.println("Hello");
-            System.out.println("Key: " + key);
-            System.out.println("Value: " + value);
+//            System.out.println("Hello");
+//            System.out.println("Key: " + key);
+//            System.out.println("Value: " + value);
         }
     }
 
     static Job getFinJob(Configuration conf) throws Exception {
         try {
-            Job jobIDFFin = Job.getInstance();
+            Job jobIDFFin = Job.getInstance(conf);
             jobIDFFin.setJobName("idf_fin_engine");
             jobIDFFin.setJarByClass(IndexEngine.class);
             jobIDFFin.setMapperClass(MapperIDFFin.class);
             jobIDFFin.setInputFormatClass(TextInputFormat.class);
             jobIDFFin.setNumReduceTasks(0);
 
-//            jobIDFFin.setMapOutputKeyClass(NullWritable.class);
-//            jobIDFFin.setMapOutputValueClass(NullWritable.class);
-//            jobIDFFin.setOutputFormatClass(TextOutputFormat.class);
+            jobIDFFin.setMapOutputKeyClass(IntWritable.class);
+            jobIDFFin.setMapOutputValueClass(IntWritable.class);
+            jobIDFFin.setOutputFormatClass(TextOutputFormat.class);
 
             return jobIDFFin;
         } catch (Exception ex) {
