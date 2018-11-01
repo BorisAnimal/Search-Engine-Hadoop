@@ -28,11 +28,6 @@ public class JobTFIDF {
 
 
                 if (conf.get("idf") != null ) {
-//                    idf = new MapWritable();
-//                    FileSystem fs = FileSystem.get(context.getConfiguration());
-//                    Path path = new Path(context.getCacheFiles()[0].toString() + "/part-r-00000");
-//                    DataInputStream reader = new DataInputStream(fs.open(path));
-//                    idf.readFields(reader);
                     String param = conf.get("idf");
                     JSONObject tmp = new JSONObject(param);
                     Map tmpMap = tmp.toMap();
@@ -63,17 +58,14 @@ public class JobTFIDF {
 
 
         public void reduce(IntWritable key, final Iterable<MapWritable> values, Context context) throws IOException, InterruptedException {
-            System.out.println("REDUCING");
             for (MapWritable map : values) {
                 try {
-                    System.out.println("Class: " + key.getClass());
                     context.write(key, map);
                 }
                 catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
-            System.out.println("hue_REDUCING");
         }
     }
 

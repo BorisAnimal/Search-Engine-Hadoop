@@ -78,16 +78,6 @@ public class IndexEngine {
         System.out.println("TF result: " + resCode);
 
         if (resCode == 0) {
-//            Job jobIDF = JobIDF.getJob(conf);
-//            // tmp tf path
-//            FileInputFormat.addInputPath(jobIDF, new Path(TF_PATH));
-//            // tmp idf path
-//            deleteDir(TMP_PATH1);
-//            FileOutputFormat.setOutputPath(jobIDF, new Path(TMP_PATH1));
-//            // run
-//            resCode = (jobIDF.waitForCompletion(true) ? 0 : 1);
-//            System.out.println("IDF result: " + resCode);
-
             // 2) Based on TF, calculate idf for words
             Job coolJob = CoolIDF.getJob(conf);
             FileInputFormat.addInputPath(coolJob, new Path(TF_PATH));
@@ -107,29 +97,6 @@ public class IndexEngine {
                 // run
                 resCode = (jobTFIDF.waitForCompletion(true) ? 0 : 1);
                 System.out.println("TFIDF result: " + resCode);
-
-
-//                Job jobIDFFin = JobIDF.getFinJob(conf);
-//                FileInputFormat.addInputPath(jobIDFFin, new Path(TMP_PATH1));
-//                deleteDir(IDF_PATH);
-//                FileOutputFormat.setOutputPath(jobIDFFin, new Path(IDF_PATH));
-//                // run
-//                resCode = (jobIDFFin.waitForCompletion(true) ? 0 : 1);
-//                System.out.println("IDF fin result: " + resCode);
-////            deleteDir(TMP_PATH);
-
-//                if (resCode == 0) {
-//                    Job jobTFIDF = JobTFIDF.getJob(conf, IDF_PATH);
-//
-//                    // tmp tf pasth
-//                    FileInputFormat.addInputPath(jobTFIDF, new Path(TF_PATH));
-//                    deleteDir(args[1]);
-//                    // given output file
-//                    FileOutputFormat.setOutputPath(jobTFIDF, new Path(args[1]));
-//                    // run
-//                    resCode = (jobTFIDF.waitForCompletion(true) ? 0 : 1);
-//                    System.out.println("TFIDF result: " + resCode);
-//                }
             }
         }
     }
