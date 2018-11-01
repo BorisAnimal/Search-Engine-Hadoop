@@ -73,7 +73,6 @@ public class JobTF {
                     JSONObject obj = new JSONObject(str);
                     IntWritable d_id = new IntWritable(obj.getInt("id"));
                     String text = obj.getString("text");
-                    System.out.println(text);
                     StringTokenizer itr = new StringTokenizer(text);
                     while (itr.hasMoreTokens()) {
                         whash.set(itr.nextToken().hashCode());

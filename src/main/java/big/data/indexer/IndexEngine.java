@@ -1,8 +1,5 @@
 package big.data.indexer;
 
-import java.io.*;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
@@ -10,9 +7,9 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
-import static big.data.Tools.IdfDeserializer.deleteDir;
-import static big.data.Tools.IdfDeserializer.getIdfAsString;
-import static big.data.Tools.IdfDeserializer.getIdfFile;
+import static big.data.Tools.IdfMultiTool.deleteDir;
+import static big.data.Tools.IdfMultiTool.getIdfAsString;
+import static big.data.Tools.IdfMultiTool.getIdfFile;
 
 
 public class IndexEngine {

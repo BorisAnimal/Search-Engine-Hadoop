@@ -1,5 +1,6 @@
 package big.data.indexer;
 
+import big.data.Tools.IdfMultiTool;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;
@@ -14,7 +15,7 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import java.io.IOException;
 import java.util.Map;
 
-import static big.data.Tools.IdfDeserializer.getIdfAsMap;
+import static big.data.Tools.IdfMultiTool.parseStringToMap;
 
 public class JobTFIDF {
     public static class MapperTFIDF extends Mapper<IntWritable, MapWritable, IntWritable, MapWritable> {
@@ -26,7 +27,7 @@ public class JobTFIDF {
             try {
                 Configuration conf = context.getConfiguration();
                 if (conf.get("idf") != null) {
-                    idf = getIdfAsMap(conf.get("idf"));
+                    idf = IdfMultiTool.parseStringToMap(conf.get("idf"));
                 } else {
                     throw new IOException("No idf cache file!!");
                 }
@@ -39,7 +40,8 @@ public class JobTFIDF {
         @Override
         public void map(IntWritable key, MapWritable value, Context context) throws IOException, InterruptedException {
             for (Writable k : value.keySet()) {
-                value.put(k, new DoubleWritable(((IntWritable) value.get(k)).get() / idf.get(new Integer(((IntWritable) k).get()))));
+                double tfidf = (((IntWritable) value.get(k)).get() * 1.0) / idf.get(((IntWritable) k).get());
+                value.put(k, new DoubleWritable(tfidf));
             }
             context.write(key, value);
         }

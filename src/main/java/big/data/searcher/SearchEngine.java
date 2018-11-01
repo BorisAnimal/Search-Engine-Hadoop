@@ -1,18 +1,23 @@
 package big.data.searcher;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.util.*;
 
 
-import static big.data.Tools.IdfDeserializer.*;
+import static big.data.Tools.IdfMultiTool.*;
 
 
 public class SearchEngine {
 
     // Arguments structure: output_search 10 "query text"
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws Exception {
         if (args.length < 3) {
             System.out.println("Arguments amount is incorrect. Add parameters like: [out path] [amount of docks] [query text]");
             return;
@@ -27,16 +32,31 @@ public class SearchEngine {
         Map queryIdfs = processQuery(query);
         String serialized = new JSONObject(queryIdfs).toString();
         System.out.println(serialized);
+        if (queryIdfs.isEmpty()) {
+            System.out.println("Such query fully not indexed. 404");
+        }
+
+        Configuration config = new Configuration(false);
+        config.set("query", parseMapToJsonString(queryIdfs));
+
+
+        Job job = SearchJob.getJob(config);
+        FileInputFormat.addInputPath(job, new Path("output"));
+        deleteDir(outFile);
+        // tmp output path
+        FileOutputFormat.setOutputPath(job, new Path(outFile));
+        // run
+        int resCode = (job.waitForCompletion(true) ? 0 : 1);
+        System.out.println("Search job result: " + resCode);
     }
 
     private static Map<Integer, Double> processQuery(String query) throws FileNotFoundException {
         HashMap<Integer, Double> res = new HashMap<Integer, Double>();
-        Map<Integer, Integer> idf = getIdfAsMap();
+        Map<Integer, Integer> idf = parseStringToMap();
         StringTokenizer itr = new StringTokenizer(query.toLowerCase());
         while (itr.hasMoreTokens()) {
             String tmp = itr.nextToken();
             int hash = tmp.hashCode();
-//            System.out.println("Hash: " + hash);
             // this word was indexed
             if (idf.containsKey(hash)) {
                 // this word already in query
@@ -45,8 +65,7 @@ public class SearchEngine {
                 } else {
                     res.put(hash, 1.0 / idf.get(hash));
                 }
-            }
-            else {
+            } else {
                 System.out.println(tmp + " not in idfs");
             }
         }
