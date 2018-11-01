@@ -25,7 +25,7 @@ import java.util.StringTokenizer;
 public class JobTF {
     public static class MapperTF extends Mapper<Object, Text, IntWritable, IntWritable> {
         private IntWritable whash = new IntWritable();
-        private boolean caseSensitive = true;
+        private boolean caseSensitive = false;
         private Set<String> patternsToSkip = new HashSet<String>();
 
         private Configuration conf;
@@ -73,6 +73,7 @@ public class JobTF {
                     JSONObject obj = new JSONObject(str);
                     IntWritable d_id = new IntWritable(obj.getInt("id"));
                     String text = obj.getString("text");
+                    System.out.println(text);
                     StringTokenizer itr = new StringTokenizer(text);
                     while (itr.hasMoreTokens()) {
                         whash.set(itr.nextToken().hashCode());

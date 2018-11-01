@@ -10,11 +10,11 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
-import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
+
+import static big.data.Tools.IdfDeserializer.getIdfAsMap;
 
 public class JobTFIDF {
     public static class MapperTFIDF extends Mapper<IntWritable, MapWritable, IntWritable, MapWritable> {
@@ -25,16 +25,8 @@ public class JobTFIDF {
             super.setup(context);
             try {
                 Configuration conf = context.getConfiguration();
-
-
-                if (conf.get("idf") != null ) {
-                    String param = conf.get("idf");
-                    JSONObject tmp = new JSONObject(param);
-                    Map tmpMap = tmp.toMap();
-                    idf = new HashMap<Integer, Integer>();
-                    for (Object i : tmpMap.keySet()) {
-                        idf.put(new Integer(i + ""), new Integer(tmpMap.get(i) + ""));
-                    }
+                if (conf.get("idf") != null) {
+                    idf = getIdfAsMap(conf.get("idf"));
                 } else {
                     throw new IOException("No idf cache file!!");
                 }
@@ -61,8 +53,7 @@ public class JobTFIDF {
             for (MapWritable map : values) {
                 try {
                     context.write(key, map);
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
