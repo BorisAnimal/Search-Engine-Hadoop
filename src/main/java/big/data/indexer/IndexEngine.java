@@ -22,7 +22,19 @@ import org.apache.hadoop.util.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
 public class IndexEngine {
+
+
+    private static String getIDF(String filename) throws FileNotFoundException {
+        Scanner sc = new Scanner(new File(filename));
+        JSONObject json = new JSONObject();
+        while (sc.hasNext()) {
+            json.put(sc.nextInt() + "", sc.nextInt());
+        }
+        sc.close();
+        return json.toString();
+    }
 
 
     private static void deleteDir(String path) {
@@ -43,10 +55,18 @@ public class IndexEngine {
     private final static String TMP_PATH2 = "output_kek";
 
 
+    /**
+     * 1) Calculate TF for docks
+     * 2) Based on TF, calculate idf for words
+     * 3) Calculate TFIDF for docks
+     */
+
+
     public static void main(String[] args) throws Exception {
+        // 1) Calculate TF for docks
+
         Configuration conf = new Configuration(false);
         GenericOptionsParser optionParser = new GenericOptionsParser(conf, args);
-
         Job jobTF = JobTF.getJob(conf);
         // origin input path
         FileInputFormat.addInputPath(jobTF, new Path(args[0]));
@@ -57,39 +77,59 @@ public class IndexEngine {
         int resCode = (jobTF.waitForCompletion(true) ? 0 : 1);
         System.out.println("TF result: " + resCode);
 
-
         if (resCode == 0) {
-            Job jobIDF = JobIDF.getJob(conf);
-            // tmp tf path
-            FileInputFormat.addInputPath(jobIDF, new Path(TF_PATH));
-            // tmp idf path
-            deleteDir(TMP_PATH1);
-            FileOutputFormat.setOutputPath(jobIDF, new Path(TMP_PATH1));
+//            Job jobIDF = JobIDF.getJob(conf);
+//            // tmp tf path
+//            FileInputFormat.addInputPath(jobIDF, new Path(TF_PATH));
+//            // tmp idf path
+//            deleteDir(TMP_PATH1);
+//            FileOutputFormat.setOutputPath(jobIDF, new Path(TMP_PATH1));
+//            // run
+//            resCode = (jobIDF.waitForCompletion(true) ? 0 : 1);
+//            System.out.println("IDF result: " + resCode);
+
+            // 2) Based on TF, calculate idf for words
+            Job coolJob = CoolIDF.getJob(conf);
+            FileInputFormat.addInputPath(coolJob, new Path(TF_PATH));
+            deleteDir(IDF_PATH);
+            FileOutputFormat.setOutputPath(coolJob, new Path(IDF_PATH));
             // run
-            resCode = (jobIDF.waitForCompletion(true) ? 0 : 1);
-            System.out.println("IDF result: " + resCode);
+            resCode = (coolJob.waitForCompletion(true) ? 0 : 1);
+            System.out.println("IDF fin result: " + resCode);
             if (resCode == 0) {
-                Job jobIDFFin = JobIDF.getFinJob(conf);
-                FileInputFormat.addInputPath(jobIDFFin, new Path(TMP_PATH1));
-                deleteDir(IDF_PATH);
-                FileOutputFormat.setOutputPath(jobIDFFin, new Path(IDF_PATH));
+                // 3) Calculate TFIDF for docks
+                conf.set("idf", getIDF(IDF_PATH + "/part-r-00000"));
+                Job jobTFIDF = JobTFIDF.getJob(conf);
+                FileInputFormat.addInputPath(jobTFIDF, new Path(TF_PATH));
+                deleteDir(args[1]);
+                // given output file
+                FileOutputFormat.setOutputPath(jobTFIDF, new Path(args[1]));
                 // run
-                resCode = (jobIDFFin.waitForCompletion(true) ? 0 : 1);
-                System.out.println("IDF fin result: " + resCode);
-//            deleteDir(TMP_PATH);
+                resCode = (jobTFIDF.waitForCompletion(true) ? 0 : 1);
+                System.out.println("TFIDF result: " + resCode);
 
-                if (resCode == 0) {
-                    Job jobTFIDF = JobTFIDF.getJob(conf, IDF_PATH);
 
-                    // tmp tf pasth
-                    FileInputFormat.addInputPath(jobTFIDF, new Path(TF_PATH));
-                    deleteDir(args[1]);
-                    // given output file
-                    FileOutputFormat.setOutputPath(jobTFIDF, new Path(args[1]));
-                    // run
-                    resCode = (jobTFIDF.waitForCompletion(true) ? 0 : 1);
-                    System.out.println("TFIDF result: " + resCode);
-                }
+//                Job jobIDFFin = JobIDF.getFinJob(conf);
+//                FileInputFormat.addInputPath(jobIDFFin, new Path(TMP_PATH1));
+//                deleteDir(IDF_PATH);
+//                FileOutputFormat.setOutputPath(jobIDFFin, new Path(IDF_PATH));
+//                // run
+//                resCode = (jobIDFFin.waitForCompletion(true) ? 0 : 1);
+//                System.out.println("IDF fin result: " + resCode);
+////            deleteDir(TMP_PATH);
+
+//                if (resCode == 0) {
+//                    Job jobTFIDF = JobTFIDF.getJob(conf, IDF_PATH);
+//
+//                    // tmp tf pasth
+//                    FileInputFormat.addInputPath(jobTFIDF, new Path(TF_PATH));
+//                    deleteDir(args[1]);
+//                    // given output file
+//                    FileOutputFormat.setOutputPath(jobTFIDF, new Path(args[1]));
+//                    // run
+//                    resCode = (jobTFIDF.waitForCompletion(true) ? 0 : 1);
+//                    System.out.println("TFIDF result: " + resCode);
+//                }
             }
         }
     }
