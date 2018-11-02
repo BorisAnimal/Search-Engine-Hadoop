@@ -1,4 +1,4 @@
-package big.data.Tools;
+package Tools;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;

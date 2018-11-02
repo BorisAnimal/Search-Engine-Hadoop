@@ -1,6 +1,6 @@
-package big.data.indexer;
+package indexer;
 
-import big.data.Tools.IdfMultiTool;
+import Tools.IdfMultiTool;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.IntWritable;

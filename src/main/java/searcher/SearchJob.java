@@ -1,4 +1,4 @@
-package big.data.searcher;
+package searcher;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.DoubleWritable;
@@ -13,7 +13,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import java.io.IOException;
 import java.util.Map;
 
-import static big.data.Tools.IdfMultiTool.parseQueryStringToMap;
+import static Tools.IdfMultiTool.parseQueryStringToMap;
 
 
 public class SearchJob {

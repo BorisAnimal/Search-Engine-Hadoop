@@ -1,4 +1,4 @@
-package big.data.searcher;
+package searcher;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -11,7 +11,7 @@ import java.io.*;
 import java.util.*;
 
 
-import static big.data.Tools.IdfMultiTool.*;
+import static Tools.IdfMultiTool.*;
 
 
 public class SearchEngine {

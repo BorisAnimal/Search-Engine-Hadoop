@@ -1,15 +1,14 @@
-package big.data.indexer;
+package indexer;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.util.GenericOptionsParser;
 
-import static big.data.Tools.IdfMultiTool.deleteDir;
-import static big.data.Tools.IdfMultiTool.getIdfAsString;
-import static big.data.Tools.IdfMultiTool.getIdfFile;
+import static Tools.IdfMultiTool.deleteDir;
+import static Tools.IdfMultiTool.getIdfAsString;
+import static Tools.IdfMultiTool.getIdfFile;
 
 
 public class IndexEngine {
@@ -30,9 +29,15 @@ public class IndexEngine {
         // 1) Calculate TF for docks
 
         Configuration conf = new Configuration(false);
-        GenericOptionsParser optionParser = new GenericOptionsParser(conf, args);
+//        conf.set("fs.hdfs.impl",
+//                org.apache.hadoop.hdfs.DistributedFileSystem.class.getName()
+//        );
+//        conf.set("fs.file.impl",
+//                org.apache.hadoop.fs.LocalFileSystem.class.getName()
+//        );
         Job jobTF = JobTF.getJob(conf);
         // origin input path
+        System.out.println(args[0]);
         FileInputFormat.addInputPath(jobTF, new Path(args[0]));
         deleteDir(TF_PATH);
         // tmp output path

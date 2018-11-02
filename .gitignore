@@ -3,3 +3,5 @@ input/*
 output*
 target/*
 tmp/*
+*.jar
+search_res

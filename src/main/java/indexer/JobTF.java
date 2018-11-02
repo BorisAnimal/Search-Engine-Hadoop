@@ -1,7 +1,6 @@
-package big.data.indexer;
+package indexer;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Text;
@@ -10,20 +9,15 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
-import org.apache.hadoop.util.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.net.URI;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.StringTokenizer;
 
-import static big.data.Tools.IdfMultiTool.getSkipPattern;
-import static big.data.Tools.IdfMultiTool.isCaseSensitive;
+import static Tools.IdfMultiTool.getSkipPattern;
+import static Tools.IdfMultiTool.isCaseSensitive;
 
 public class JobTF {
     public static class MapperTF extends Mapper<Object, Text, IntWritable, IntWritable> {
