@@ -22,12 +22,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import static big.data.Tools.IdfMultiTool.getSkipPattern;
+import static big.data.Tools.IdfMultiTool.isCaseSensitive;
+
 public class JobTF {
     public static class MapperTF extends Mapper<Object, Text, IntWritable, IntWritable> {
         private IntWritable whash = new IntWritable();
-        private boolean caseSensitive = false;
-        private Set<String> patternsToSkip = new HashSet<String>();
-
         private Configuration conf;
         private BufferedReader fis;
 
@@ -35,44 +35,19 @@ public class JobTF {
         public void setup(Context context) throws IOException {
             conf = context.getConfiguration();
 //            caseSensitive = conf.getBoolean("wordcount.case.sensitive", true);
-            if (conf.getBoolean("wordcount.skip.patterns", false)) {
-                URI[] patternsURIs = Job.getInstance(conf).getCacheFiles();
-                for (URI patternsURI : patternsURIs) {
-                    Path patternsPath = new Path(patternsURI.getPath());
-                    String patternsFileName = patternsPath.getName().toString();
-                    parseSkipFile(patternsFileName);
-                }
-            }
-        }
-
-        private void parseSkipFile(String fileName) {
-            try {
-                fis = new BufferedReader(new FileReader(fileName));
-                String pattern = null;
-                while ((pattern = fis.readLine()) != null) {
-                    patternsToSkip.add(pattern);
-                }
-            } catch (IOException ioe) {
-                System.err.println("Caught exception while parsing the cached file '"
-                        + StringUtils.stringifyException(ioe));
-            }
         }
 
         @Override
         public void map(Object key, Text value, Context context
         ) throws IOException, InterruptedException {
-            String line = (caseSensitive) ? value.toString() : value.toString().toLowerCase();
-            for (String pattern : patternsToSkip) {
-                line = line.replaceAll(pattern, "");
-            }
-
+            String line = (isCaseSensitive()) ? value.toString() : value.toString().toLowerCase();
             String[] tuple = line.split("\\n");
             try {
                 // For each document (JSON)
                 for (String str : tuple) {
                     JSONObject obj = new JSONObject(str);
                     IntWritable d_id = new IntWritable(obj.getInt("id"));
-                    String text = obj.getString("text");
+                    String text = obj.getString("text").replaceAll(getSkipPattern(), "");
                     StringTokenizer itr = new StringTokenizer(text);
                     while (itr.hasMoreTokens()) {
                         whash.set(itr.nextToken().hashCode());

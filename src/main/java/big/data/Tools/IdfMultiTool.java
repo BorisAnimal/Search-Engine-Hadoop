@@ -6,15 +6,23 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class IdfMultiTool {
+
+    public static boolean isCaseSensitive() {
+        return false;
+    }
 
     public static String getIdfFile() {
         return "output_idf";
     }
+
+
+    public static String getSkipPattern() {
+        return "[^A-Za-z0-9 ]";
+    }
+
 
     public static void deleteDir(String path) {
         File tmpDir = new File(path);

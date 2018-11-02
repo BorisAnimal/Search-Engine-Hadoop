@@ -15,7 +15,6 @@ import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import java.io.IOException;
 import java.util.Map;
 
-import static big.data.Tools.IdfMultiTool.parseStringToMap;
 
 public class JobTFIDF {
     public static class MapperTFIDF extends Mapper<IntWritable, MapWritable, IntWritable, MapWritable> {

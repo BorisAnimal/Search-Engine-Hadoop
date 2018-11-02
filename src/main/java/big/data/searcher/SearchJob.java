@@ -46,7 +46,8 @@ public class SearchJob {
                     sum += ((DoubleWritable) value.get(kek)).get();
                 }
             }
-            context.write(key, new DoubleWritable(sum));
+            if (sum > 0.0)
+                context.write(key, new DoubleWritable(sum));
         }
     }
 

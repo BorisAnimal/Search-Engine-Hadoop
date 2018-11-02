@@ -16,16 +16,19 @@ import static big.data.Tools.IdfMultiTool.*;
 
 public class SearchEngine {
 
+    private static final String SEARCH_OUT = "output_search";
+
     // Arguments structure: output_search 10 "query text"
     public static void main(String[] args) throws Exception {
-        if (args.length < 3) {
+        if (args.length < 4) {
             System.out.println("Arguments amount is incorrect. Add parameters like: [out path] [amount of docks] [query text]");
             return;
         }
 
         // Parse args
-        String outFile = args[0];
-        int docksNum = Integer.parseInt(args[1]);
+        String index_file = args[0];
+        String outFile = args[1];
+        int docksNum = Integer.parseInt(args[2]);
         String query = args[args.length - 1];
 
         // Prepare query
@@ -41,19 +44,32 @@ public class SearchEngine {
 
 
         Job job = SearchJob.getJob(config);
-        FileInputFormat.addInputPath(job, new Path("output"));
-        deleteDir(outFile);
+        FileInputFormat.addInputPath(job, new Path(index_file));
+        deleteDir(SEARCH_OUT);
         // tmp output path
-        FileOutputFormat.setOutputPath(job, new Path(outFile));
+        FileOutputFormat.setOutputPath(job, new Path(SEARCH_OUT));
         // run
         int resCode = (job.waitForCompletion(true) ? 0 : 1);
         System.out.println("Search job result: " + resCode);
+
+
+        String[] cmd = {
+                "/bin/sh",
+                "-c",
+                String.format("cat output_search/part* | sort -n -k2 -r | head -n%d > %s", docksNum, outFile)
+        };
+        Process p = Runtime.getRuntime().exec(cmd);
+        int res = p.waitFor();
+        deleteDir(SEARCH_OUT);
+        System.exit(res);
     }
 
     private static Map<Integer, Double> processQuery(String query) throws FileNotFoundException {
         HashMap<Integer, Double> res = new HashMap<Integer, Double>();
         Map<Integer, Integer> idf = parseStringToMap();
-        StringTokenizer itr = new StringTokenizer(query.toLowerCase());
+        query = (isCaseSensitive()) ? query : query.toLowerCase();
+        query = query.replaceAll(getSkipPattern(), "");
+        StringTokenizer itr = new StringTokenizer(query);
         while (itr.hasMoreTokens()) {
             String tmp = itr.nextToken();
             int hash = tmp.hashCode();

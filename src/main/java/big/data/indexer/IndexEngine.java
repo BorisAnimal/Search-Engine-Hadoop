@@ -63,5 +63,7 @@ public class IndexEngine {
                 System.out.println("TFIDF result: " + resCode);
             }
         }
+        deleteDir(TF_PATH);
+        deleteDir(TMP_PATH1);
     }
 }
