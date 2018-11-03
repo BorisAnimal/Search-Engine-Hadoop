@@ -12,7 +12,6 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
@@ -22,14 +21,6 @@ import static Tools.IdfMultiTool.isCaseSensitive;
 public class JobTF {
     public static class MapperTF extends Mapper<Object, Text, IntWritable, IntWritable> {
         private IntWritable whash = new IntWritable();
-        private Configuration conf;
-        private BufferedReader fis;
-
-        @Override
-        public void setup(Context context) throws IOException {
-            conf = context.getConfiguration();
-//            caseSensitive = conf.getBoolean("wordcount.case.sensitive", true);
-        }
 
         @Override
         public void map(Object key, Text value, Context context
@@ -48,8 +39,9 @@ public class JobTF {
                         context.write(d_id, whash);
                     }
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
                 e.printStackTrace();
+                throw e;
             }
         }
     }

@@ -62,7 +62,7 @@ public class SearchJob {
 
     public static Job getJob(Configuration config) throws Exception {
         try {
-            Job job = Job.getInstance(config, "tfidf_engine");
+            Job job = Job.getInstance(config, "Searching engine");
             job.setJarByClass(SearchEngine.class);
             job.setMapperClass(SearchMapper.class);
             job.setReducerClass(SearchReducer.class);

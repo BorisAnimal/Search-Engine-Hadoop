@@ -13,6 +13,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import java.io.IOException;
 
+// Cool, because it finally works, not like JobIDF do
 public class CoolIDF {
 
     public static class CoolReducer extends Reducer<IntWritable, IntWritable, IntWritable, IntWritable> {

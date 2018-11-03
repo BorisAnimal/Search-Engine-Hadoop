@@ -14,21 +14,26 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 public class IdfMultiTool {
+    // Singleton object of idfs, common for all tasks
+    private static JsonObject idfs = null;
 
     public static boolean isCaseSensitive() {
         return false;
     }
 
+    // This file needed for both: Searching and Indexing
     public static String getIdfFile() {
         return "/home/team10/output_idf";
     }
 
 
+    // Leave only matter symbols in input texts
     public static String getSkipPattern() {
         return "[^A-Za-z0-9 ]";
     }
 
 
+    // Delete dir if it exists
     public static void deleteDir(String path) {
         File tmpDir = new File(path);
         boolean exists = tmpDir.exists();
@@ -41,8 +46,8 @@ public class IdfMultiTool {
         }
     }
 
-    private static JsonObject idfs = null;
 
+    // WARNING! assumption, that idfs file only one generates
     private static JsonObject loadIdfs() throws FileNotFoundException {
         if (idfs == null) {
             Scanner sc = new Scanner(new File(getIdfFile() + "/part-r-00000"));
@@ -56,9 +61,12 @@ public class IdfMultiTool {
         return idfs;
     }
 
+
+    // Parses content of file to String
     public static String getIdfAsString() throws FileNotFoundException {
         return loadIdfs().toString();
     }
+
 
     public static Map<Integer, Integer> parseStringToMap(String param) {
         Map<Integer, Integer> idf = new HashMap<Integer, Integer>();
@@ -77,9 +85,6 @@ public class IdfMultiTool {
         Type type = new TypeToken<Map<Integer, Integer>>() {
         }.getType();
         HashMap<Integer, Integer> map = (HashMap<Integer, Integer>) gson.fromJson(json, type);
-//        for(String str: json.keySet()) {
-//            map.put(str, json.getInt(str));
-//        }
         return map;
     }
 

@@ -7,6 +7,7 @@ public class Main {
     private static final String INDEXER = "Indexer";
     private static final String SEARCHER = "Query";
 
+    // Entry point
     public static void main(String[] args) {
         if (args.length < 3) {
             System.out.println("Wrong function call. See readme.md");
