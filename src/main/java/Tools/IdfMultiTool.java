@@ -1,11 +1,16 @@
 package Tools;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import org.apache.commons.io.FileUtils;
-import org.json.JSONObject;
+
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.*;
 
 public class IdfMultiTool {
@@ -15,7 +20,7 @@ public class IdfMultiTool {
     }
 
     public static String getIdfFile() {
-        return "output_idf";
+        return "/home/team10/output_idf";
     }
 
 
@@ -36,14 +41,14 @@ public class IdfMultiTool {
         }
     }
 
-    private static JSONObject idfs = null;
+    private static JsonObject idfs = null;
 
-    private static JSONObject loadIdfs() throws FileNotFoundException {
+    private static JsonObject loadIdfs() throws FileNotFoundException {
         if (idfs == null) {
             Scanner sc = new Scanner(new File(getIdfFile() + "/part-r-00000"));
-            idfs = new JSONObject();
+            idfs = new JsonObject();
             while (sc.hasNext()) {
-                idfs.put(sc.nextInt() + "", sc.nextInt());
+                idfs.addProperty(sc.nextInt() + "", sc.nextInt());
             }
             sc.close();
         }
@@ -58,19 +63,33 @@ public class IdfMultiTool {
     public static Map<Integer, Integer> parseStringToMap(String param) {
         Map<Integer, Integer> idf = new HashMap<Integer, Integer>();
 
-        JSONObject tmp = new JSONObject(param);
-        Map tmpMap = tmp.toMap();
+        JsonParser parser = new JsonParser();
+        JsonObject tmp = parser.parse(param).getAsJsonObject();
+        Map tmpMap = jsonToMap(tmp);
         for (Object i : tmpMap.keySet()) {
             idf.put(new Integer(i + ""), new Integer(tmpMap.get(i) + ""));
         }
         return idf;
     }
 
+    private static Map jsonToMap(JsonObject json) {
+        Gson gson = new Gson();
+        Type type = new TypeToken<Map<Integer, Integer>>() {
+        }.getType();
+        HashMap<Integer, Integer> map = (HashMap<Integer, Integer>) gson.fromJson(json, type);
+//        for(String str: json.keySet()) {
+//            map.put(str, json.getInt(str));
+//        }
+        return map;
+    }
+
+
     public static Map<Integer, Double> parseQueryStringToMap(String param) {
         Map<Integer, Double> idf = new HashMap<Integer, Double>();
 
-        JSONObject tmp = new JSONObject(param);
-        Map tmpMap = tmp.toMap();
+        JsonParser parser = new JsonParser();
+        JsonObject tmp = parser.parse(param).getAsJsonObject();
+        Map tmpMap = jsonToMap(tmp);
         for (Object i : tmpMap.keySet()) {
             idf.put(new Integer(i + ""), new Double(tmpMap.get(i) + ""));
         }
@@ -82,6 +101,6 @@ public class IdfMultiTool {
     }
 
     public static String parseMapToJsonString(Map map) {
-        return new JSONObject(map).toString();
+        return new Gson().toJson(map);
     }
 }

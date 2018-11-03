@@ -1,5 +1,7 @@
 package indexer;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.MapWritable;
@@ -9,8 +11,6 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -39,16 +39,16 @@ public class JobTF {
             try {
                 // For each document (JSON)
                 for (String str : tuple) {
-                    JSONObject obj = new JSONObject(str);
-                    IntWritable d_id = new IntWritable(obj.getInt("id"));
-                    String text = obj.getString("text").replaceAll(getSkipPattern(), "");
+                    JsonObject obj = new JsonParser().parse(str).getAsJsonObject();
+                    IntWritable d_id = new IntWritable(obj.get("id").getAsInt());
+                    String text = obj.get("text").getAsString().replaceAll(getSkipPattern(), "");
                     StringTokenizer itr = new StringTokenizer(text);
                     while (itr.hasMoreTokens()) {
                         whash.set(itr.nextToken().hashCode());
                         context.write(d_id, whash);
                     }
                 }
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

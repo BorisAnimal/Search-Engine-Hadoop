@@ -33,7 +33,6 @@
     <orderEntry type="library" name="Maven: com.thoughtworks.paranamer:paranamer:2.3" level="project" />
     <orderEntry type="library" name="Maven: org.xerial.snappy:snappy-java:1.0.5" level="project" />
     <orderEntry type="library" name="Maven: com.google.re2j:re2j:1.1" level="project" />
-    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.2.4" level="project" />
     <orderEntry type="library" name="Maven: org.apache.hadoop:hadoop-auth:3.1.1" level="project" />
     <orderEntry type="library" name="Maven: com.nimbusds:nimbus-jose-jwt:4.41.1" level="project" />
     <orderEntry type="library" name="Maven: com.github.stephenc.jcip:jcip-annotations:1.0-1" level="project" />
@@ -79,7 +78,7 @@
     <orderEntry type="library" name="Maven: org.apache.hadoop:hadoop-mapreduce-client-jobclient:3.1.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.hadoop:hadoop-mapreduce-client-common:3.1.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.hadoop:hadoop-annotations:3.1.1" level="project" />
-    <orderEntry type="library" name="Maven: org.json:json:20180813" level="project" />
+    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.2.4" level="project" />
     <orderEntry type="library" name="Maven: org.apache.hadoop:hadoop-hdfs:3.1.1" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava:11.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.eclipse.jetty:jetty-server:9.3.19.v20170502" level="project" />

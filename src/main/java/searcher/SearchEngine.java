@@ -5,7 +5,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.json.JSONObject;
 
 import java.io.*;
 import java.util.*;
@@ -33,7 +32,7 @@ public class SearchEngine {
 
         // Prepare query
         Map queryIdfs = processQuery(query);
-        String serialized = new JSONObject(queryIdfs).toString();
+        String serialized = parseMapToJsonString(queryIdfs);
         System.out.println(serialized);
         if (queryIdfs.isEmpty()) {
             System.out.println("Such query fully not indexed. 404");
