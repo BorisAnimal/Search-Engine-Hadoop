@@ -11,7 +11,6 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import java.io.IOException;
 import java.util.Map;
@@ -50,25 +49,14 @@ public class JobTFIDF {
 
     public static class IndexReducer extends Reducer<IntWritable, MapWritable, IntWritable, MapWritable> {
 
-        private boolean hasVoidFields(MapWritable map) {
-            for (Map.Entry<Writable, Writable> k: map.entrySet()) {
-                if (k.getKey() == null || k.getValue() == null)
-                    return true;
-            }
-            return false;
-        }
 
         public void reduce(IntWritable key, final Iterable<MapWritable> values, Context context) throws IOException, InterruptedException {
             for (MapWritable map : values) {
                 try {
-                    if (key != null && map != null && !map.isEmpty() && !hasVoidFields(map))
-                        context.write(key, map);
-                    else
-                        System.out.println("!!!! CATCHERDD!!!!! 111");
+                    context.write(key, map);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-//                System.out.println(map.entrySet() + "");
             }
         }
     }

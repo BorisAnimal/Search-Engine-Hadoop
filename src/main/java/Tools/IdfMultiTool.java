@@ -80,30 +80,6 @@ public class IdfMultiTool {
         return idf;
     }
 
-
-    public static Map<Integer, Double> parseCycle(String param) {
-//        System.out.println(param);
-//        System.out.println(param);
-        Map<Integer, Double> idf = new HashMap<Integer, Double>();
-        String a = param.replaceAll("\\{", "").replace("}", "");
-
-
-        String[] pairs = a.split(",");
-        for (int i=0;i<pairs.length;i++) {
-            try {
-                String pair = pairs[i].trim();
-                String[] keyValue = pair.split("=");
-                idf.put(Integer.valueOf(keyValue[0]), Double.valueOf(keyValue[1]));
-            }
-            catch (Exception ex) {
-                continue;
-            }
-        }
-
-        return idf;
-    }
-
-
     private static Map jsonToMap(JsonObject json) {
         Gson gson = new Gson();
         Type type = new TypeToken<Map<Integer, Integer>>() {
