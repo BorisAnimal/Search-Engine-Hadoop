@@ -19,7 +19,7 @@ import static Tools.IdfMultiTool.parseQueryStringToMap;
 public class SearchJob {
 
     public static class SearchMapper extends Mapper<IntWritable, MapWritable, IntWritable, DoubleWritable> {
-        private Map<Integer, Double> query;
+        private Map<Integer, Double> query = null;
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
@@ -27,7 +27,8 @@ public class SearchJob {
             try {
                 Configuration conf = context.getConfiguration();
                 if (conf.get("query") != null) {
-                    query = parseQueryStringToMap(conf.get("query"));
+                    if (query == null)
+                        query = parseQueryStringToMap(conf.get("query"));
                 } else {
                     throw new IOException("No query in configurations!!");
                 }
@@ -37,25 +38,32 @@ public class SearchJob {
             }
         }
 
-        @Override
         protected void map(IntWritable key, MapWritable value, Context context) throws IOException, InterruptedException {
             double sum = 0.0;
+            if (query == null)
+                System.out.println("null query");
             for (Integer k : query.keySet()) {
                 IntWritable kek = new IntWritable(k);
-                if (value.containsKey(kek)) {
-                    sum += ((DoubleWritable) value.get(kek)).get();
+                if (value != null && value.containsKey(kek)) {
+                    DoubleWritable d = (DoubleWritable) value.get(kek);
+                    if (d != null)
+                        sum += d.get();
                 }
             }
-            if (sum > 0.0)
+            if (sum > 0.0) {
                 context.write(key, new DoubleWritable(sum));
+                System.out.println(key + ": " + sum);
+            }
         }
+
     }
 
 
     public static class SearchReducer extends Reducer<IntWritable, DoubleWritable, IntWritable, DoubleWritable> {
         @Override
         protected void reduce(IntWritable key, Iterable<DoubleWritable> values, Context context) throws IOException, InterruptedException {
-            super.reduce(key, values, context);
+            for (DoubleWritable value : values)
+                context.write(key, value);
         }
     }
 

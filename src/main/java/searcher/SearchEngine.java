@@ -15,7 +15,7 @@ import static Tools.IdfMultiTool.*;
 
 public class SearchEngine {
 
-    private static final String SEARCH_OUT = "output_search";
+    private static final String SEARCH_OUT = "/home/team10/output_search";
 
     // Arguments structure: output_search 10 "query text"
     public static void main(String[] args) throws Exception {
@@ -55,7 +55,7 @@ public class SearchEngine {
         String[] cmd = {
                 "/bin/sh",
                 "-c",
-                String.format("cat output_search/part* | sort -n -k2 -r | head -n%d > %s", docksNum, outFile)
+                String.format("cat %s/part* | sort -n -k2 -r | head -n%d > %s", SEARCH_OUT, docksNum, outFile)
         };
         Process p = Runtime.getRuntime().exec(cmd);
         int res = p.waitFor();
