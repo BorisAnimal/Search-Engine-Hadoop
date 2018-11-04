@@ -1,25 +1,24 @@
 package searcher;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.MapWritable;
+import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import java.io.IOException;
 import java.util.Map;
 
+import static Tools.IdfMultiTool.parseCycle;
 import static Tools.IdfMultiTool.parseQueryStringToMap;
 
 
 public class SearchJob {
 
-    public static class SearchMapper extends Mapper<IntWritable, MapWritable, IntWritable, DoubleWritable> {
-        private Map<Integer, Double> query;
+    public static class SearchMapper extends Mapper<LongWritable, Text, LongWritable, DoubleWritable> {
+        private Map<Integer, Double> query = null;
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
@@ -27,7 +26,8 @@ public class SearchJob {
             try {
                 Configuration conf = context.getConfiguration();
                 if (conf.get("query") != null) {
-                    query = parseQueryStringToMap(conf.get("query"));
+                    if (query == null)
+                        query = parseQueryStringToMap(conf.get("query"));
                 } else {
                     throw new IOException("No query in configurations!!");
                 }
@@ -37,24 +37,37 @@ public class SearchJob {
             }
         }
 
+
         @Override
-        protected void map(IntWritable key, MapWritable value, Context context) throws IOException, InterruptedException {
+        protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             double sum = 0.0;
+            Map cycle = parseCycle(value.toString());
+//            System.out.println("\n");
+//            System.out.println(value);
+//            System.out.println("\n");
+            if (query == null)
+                System.out.println("null query");
             for (Integer k : query.keySet()) {
                 IntWritable kek = new IntWritable(k);
-                if (value.containsKey(kek)) {
-                    sum += ((DoubleWritable) value.get(kek)).get();
+                if (cycle != null && cycle.containsKey(kek)) {
+                    DoubleWritable d = (DoubleWritable) cycle.get(kek);
+                    if (d != null)
+                        sum += d.get();
                 }
             }
-            if (sum > 0.0)
+            if (sum > 0.0) {
                 context.write(key, new DoubleWritable(sum));
+                System.out.println(key + ": " + sum);
+            }
         }
+
     }
 
 
-    public static class SearchReducer extends Reducer<IntWritable, DoubleWritable, IntWritable, DoubleWritable> {
+    public static class SearchReducer extends Reducer<LongWritable, DoubleWritable, LongWritable, DoubleWritable> {
         @Override
-        protected void reduce(IntWritable key, Iterable<DoubleWritable> values, Context context) throws IOException, InterruptedException {
+        protected void reduce(LongWritable key, Iterable<DoubleWritable> values, Context context) throws IOException, InterruptedException {
+            System.out.println(key + ":" + values);
             super.reduce(key, values, context);
         }
     }
@@ -66,12 +79,12 @@ public class SearchJob {
             job.setJarByClass(SearchEngine.class);
             job.setMapperClass(SearchMapper.class);
             job.setReducerClass(SearchReducer.class);
-            job.setInputFormatClass(SequenceFileInputFormat.class);
+            job.setInputFormatClass(TextInputFormat.class);
             job.setOutputFormatClass(TextOutputFormat.class);
-            job.setOutputKeyClass(IntWritable.class);
+            job.setOutputKeyClass(LongWritable.class);
             job.setOutputValueClass(DoubleWritable.class);
 
-            job.setMapOutputKeyClass(IntWritable.class);
+            job.setMapOutputKeyClass(LongWritable.class);
             job.setMapOutputValueClass(DoubleWritable.class);
 
             return job;

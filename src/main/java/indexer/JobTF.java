@@ -32,7 +32,7 @@ public class JobTF {
                 for (String str : tuple) {
                     JsonObject obj = new JsonParser().parse(str).getAsJsonObject();
                     IntWritable d_id = new IntWritable(obj.get("id").getAsInt());
-                    String text = obj.get("text").getAsString().replaceAll(getSkipPattern(), "");
+                    String text = (obj.get("text").getAsString() + " " + obj.get("title").getAsString()).replaceAll(getSkipPattern(), "");
                     StringTokenizer itr = new StringTokenizer(text);
                     while (itr.hasMoreTokens()) {
                         whash.set(itr.nextToken().hashCode());
