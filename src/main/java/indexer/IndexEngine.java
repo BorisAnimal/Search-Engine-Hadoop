@@ -41,6 +41,7 @@ public class IndexEngine {
         System.out.println(args[0]);
         Path inputpath = new Path(args[0] + "/" + "AA" + "*");
         FileInputFormat.addInputPath(jobTF, inputpath);
+        FileInputFormat.setMaxInputSplitSize(jobTF, 150886400); //WARNING!
         deleteDir(TF_PATH);
         // tmp output path
         FileOutputFormat.setOutputPath(jobTF, new Path(TF_PATH));
