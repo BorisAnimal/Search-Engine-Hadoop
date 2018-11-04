@@ -1,5 +1,8 @@
 ## Big-Data-Fall-2018
 
+## Suggestions/assumptions:
+* instead of word_id project uses String.hashCode()
+
 ## File SearchEngine.java 
 Introduce search part of the project (now it is do not it's functional)
 
