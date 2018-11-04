@@ -39,7 +39,14 @@ public class IndexEngine {
         Job jobTF = JobTF.getJob(conf);
         // origin input path
         System.out.println(args[0]);
-        Path inputpath = new Path(args[0] );//+ "/" + "AA" + "*"
+
+        Path inputpath;
+        if (args[0].contains("AA")) {
+            inputpath = new Path((args[0]));
+        } else {
+            inputpath = new Path(args[0] + "/" + "AA" + "*");
+        }
+
         FileInputFormat.addInputPath(jobTF, inputpath);
         deleteDir(TF_PATH);
         // tmp output path
